@@ -1,0 +1,8 @@
+{ "Plutonic": "Igneous",
+  "Volcanic": "Igneous",
+  "Contact Metamorphic": "Metamorphic",
+  "Regional Metamorphic": "Metamorphic",
+  "Ultra Metamorphic": "Metamorphic",
+  "Chemical Sedimentar": "Sedimentar",
+  "Clastic Sedimentar": "Sedimentar"
+}
