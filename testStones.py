@@ -3,7 +3,7 @@ from data import *
 import matplotlib.pyplot as plt
 from sklearn import metrics
 
-classLevel = 0
+classLevel = 2
 batch_size = 32
 epochs = 25
 
@@ -154,7 +154,7 @@ plt.show()
 accuracy = metrics.accuracy_score(y_test_gt, y_test_predict)
 prfs = metrics.precision_recall_fscore_support(y_test_gt, y_test_predict, labels=range(len(classes)))
 confusionMatrix = metrics.confusion_matrix(y_test_gt, y_test_predict, labels=range(0, len(classes)))
-np.savetxt('confusionMatrix.csv', confusionMatrix, delimiter=' ')
+np.savetxt("confusionMatrix" + "_L" + str(classLevel) + "_B" + str(batch_size) + "_E" + str(epochs) +  ".csv", confusionMatrix, delimiter=' ')
 classificationReport=metrics.classification_report(y_test_gt, y_test_predict)
 
 # print("Jaccard:", jaccard)
