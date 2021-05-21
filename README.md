@@ -1,4 +1,4 @@
-# Stone Recogognition
+# Stone Recognition
 
 David Morim
 
