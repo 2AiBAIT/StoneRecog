@@ -18,6 +18,8 @@ from sklearn.model_selection import train_test_split
 # logger.setLevel(logging.ERROR)
 
 
+rocks_limit = 0
+
 # done
 def normalizeImage(imgB):
         img=(np.array(imgB, 'float')-128)/128
@@ -29,9 +31,12 @@ def prepare_dataset(datasetPath, rocks_db, classes_structure, classLevel):
     with open(rocks_db) as data_file:
         rocks = json.load(data_file)
 
+    if rocks_limit > 0:
+        del rocks[rocks_limit:]    
+        
     usableSet=[]
     for pedra in rocks:
-        print("Checking stone " + str(pedra["ID"]))
+        #print("Checking stone " + str(pedra["ID"]))
         # img = io.imread(os.path.join(datasetPath, pedra['Diretorio Img']))
 
         if (pedra["Largura da Imagem"] == 780):
@@ -62,7 +67,7 @@ def prepare_dataset(datasetPath, rocks_db, classes_structure, classLevel):
     classes_hierarchy_L0L1 = classes_structure["classes_hierarchy_L0L1"]
     classes_hierarchy_L1L2 = classes_structure["classes_hierarchy_L1L2"]
 
-    datasetX=np.ndarray(len(usableSet))
+    datasetX = np.ndarray(len(usableSet))
     datasetY = np.ndarray(len(usableSet),  dtype=int)
 
     i=0
@@ -196,6 +201,13 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
     classes_hierarchy_L0L1 = classes_structure["classes_hierarchy_L0L1"]
     classes_hierarchy_L1L2 = classes_structure["classes_hierarchy_L1L2"]
 
+    if classLevel == 0:
+        class_count = len(classes_list_L0)
+    elif classLevel == 1:
+        class_count = len(classes_list_L1)
+    else:
+        class_count = len(classes_list_L2)
+
     if batch_size > 1:
         while 1:
             iRock = 0
@@ -222,7 +234,7 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
                                 superClassID = classes_L2_dict[superClassName]
                                 class_Name = superClassName
                                 class_ID = superClassID
-                        batch_classes[iRockInBatch] = class_ID
+                        batch_classes[iRockInBatch][class_ID] = 1
                         img = augmentImages(aug_dict, img, input_size)
                         batch_images[iRockInBatch, :, :, :] = img
 
@@ -253,7 +265,8 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
                 img = augmentImages(aug_dict, img, input_size)
                 img = np.zeros(input_size)
 
-                cls = np.array([class_ID])
+                cls = np.zeros(class_count)
+                cls[class_ID] = 1
                 img = np.array([img])
 
                 yield (img, cls)
