@@ -5,12 +5,13 @@ from sklearn import metrics
 
 classLevel = 2
 batch_size = 32
-epochs = 25
+epochs = 50
+mod_ver = 1
 
-datasetPath = "rocks_db/"
+datasetPath = "rocks_db/" #"D:"
 resultsPath = "results/predict/"
 modelsPath = "models/"
-modelFileName= "jbdm_v0_L" + str(classLevel) + "_B" + str(batch_size) + "_E" + str(epochs) + ".hdf5"
+modelFileName = "jbdm_v" + str(mod_ver) + "_L" + str(classLevel) + "_B" + str(batch_size) + "_E" + str(epochs) + ".hdf5"
 rocks_db = "rocks_db/rocks_db_corrected.json"
 stone_classes_list_L0 = "stone_classes_list_L0.json"
 stone_classes_list_L1 = "stone_classes_list_L1.json"
@@ -98,6 +99,7 @@ model = jbdm_v0(input_size=input_size, num_class=len(classes), pretrained_weight
 testGene = testGeneratorStones(datasetPath, testSet, input_size=input_size, inicial_size=inicial_size)
 NTest = len(testSet)
 y_test_predictions = model.predict_generator(testGene, NTest, verbose=1)
+y_test_predictions = y_test_predictions[2]
 y_test_predict = np.argmax(y_test_predictions, axis=-1)
 
 # show predictions for first images
