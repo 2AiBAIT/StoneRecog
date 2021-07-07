@@ -3,6 +3,9 @@ from data import *
 import matplotlib.pyplot as plt
 from sklearn import metrics
 
+print("Tensorflow {}".format(tf.__version__))
+#print("GPU devices: {}".format(tf.config.list_physical_devices('GPU')))
+
 classLevel = 2
 batch_size = 32
 epochs = 50
