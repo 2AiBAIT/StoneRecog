@@ -5,12 +5,14 @@ from tensorflow.keras.preprocessing.image import ImageDataGenerator
 import matplotlib.pyplot as plt
 # from classes_rocks import pedras_classes
 from tensorflow.keras.callbacks import ModelCheckpoint
+from IPython.display import clear_output
+from datetime import datetime
 
 # os.environ["CUDA_VISIBLE_DEVICES"] = "0"
 
 classLevel = 2
 batch_size = 32
-epochs = 25
+epochs = 5
 mod_ver = 1
 
 datasetPath = "rocks_db/"
@@ -80,7 +82,7 @@ class BatchLossHistory(tf.keras.callbacks.Callback):
         self.batch_accuracies.append(logs.get('accuracy'))
 
 
-# batch_history = BatchLossHistory()
+batch_history = BatchLossHistory()
 
 
 class MetricsValues(tf.keras.callbacks.Callback):
@@ -165,7 +167,7 @@ training_history = model.fit(trainGene,
                              validation_steps=validation_steps)
 
 print("History:")
-print(history.history)
+print(training_history.history)
 # print("Batch history batch_losses:")
 # print(batch_history.batch_losses)
 # print("Batch history batch_accuracies:")

@@ -1,16 +1,18 @@
 from model import *
 from data import *
-from trainStones import *
+# from trainStones import *
 
 
 classLevel = 2
 batch_size = 32
-epochs = 10
+epochs = 5
 mod_ver = 1
+
+datasetPath = "rocks_db/"
 
 inicial_size = (480, 780, 3)
 input_size = (128, 128, 3)
-num_class = len(classes)
+
 
 modelsPath = "models/"
 modelFileName = "jbdm_v" + str(mod_ver) + "_L" + str(classLevel) + "_B" + str(batch_size) + "_E" + str(epochs) + ".hdf5"
@@ -50,11 +52,11 @@ modelFilePath = os.path.join(modelsPath, modelFileName)
 model = jbdm_v1.build(input_size=input_size, num_class=len(classes), pretrained_weights=modelFilePath)
 model.summary()
 
-plot_model(model, to_file='Pedras.png')
+# plot_model(model, to_file='Pedras.png')
 
 model.trainable = False
 base_output = model.layers[-2].output # layer number obtained from model summary above
-new_output = tf.keras.layers.Dense(num_class, activation="softmax")(base_output)
+new_output = tf.keras.layers.Dense(len(classes), activation="softmax")(base_output)
 modelNew = tf.keras.models.Model(
     inputs=model.inputs, outputs=new_output)
 modelNew.summary()
@@ -63,6 +65,8 @@ modelNew.compile(
     optimizer='adam',
     loss='sparse_categorical_crossentropy',
     metrics=['accuracy'])
+
+trainGene = trainGeneratorStones(classes_structure=classes_structure, classLevel=classLevel, batch_size=batch_size, datasetPath=datasetPath, trainSet=trainSet, aug_dict=augmentation_args, input_size=input_size)
 
 training_history = model.fit(trainGene,
                              steps_per_epoch=steps_per_epoch,

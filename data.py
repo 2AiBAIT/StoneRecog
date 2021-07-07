@@ -214,7 +214,7 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
             nBatches = int(np.ceil(len(trainSet)/batch_size))
             for batchID in range(nBatches):
                 batch_images = np.zeros(((batch_size,) + input_size ))
-                batch_classes = np.zeros((batch_size,))
+                batch_classes = np.zeros((batch_size, class_count))
 
                 iRockInBatch=0
                 while iRockInBatch<batch_size:
