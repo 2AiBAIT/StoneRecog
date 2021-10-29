@@ -4,12 +4,12 @@ import matplotlib.pyplot as plt
 from sklearn import metrics
 
 print("Tensorflow {}".format(tf.__version__))
-#print("GPU devices: {}".format(tf.config.list_physical_devices('GPU')))
+print("GPU devices: {}".format(tf.config.list_physical_devices('GPU')))
 
 classLevel = 2
 batch_size = 32
-epochs = 50
-mod_ver = 1
+epochs = 25
+mod_ver = 0
 
 datasetPath = "rocks_db/" #"D:"
 resultsPath = "results/predict/"
@@ -96,13 +96,17 @@ plt.show()
 
 #load model
 modelFilePath = os.path.join(modelsPath, modelFileName)
-model = jbdm_v0(input_size=input_size, num_class=len(classes), pretrained_weights=modelFilePath)
+if mod_ver==1:
+    model = jbdm_v1.build(input_size=input_size, num_class=len(classes), pretrained_weights=modelFilePath)
+else:
+    model = jbdm_v0.jbdm_v0(input_size=input_size, num_class=len(classes), pretrained_weights=modelFilePath)
 
 #test with model
 testGene = testGeneratorStones(datasetPath, testSet, input_size=input_size, inicial_size=inicial_size)
 NTest = len(testSet)
 y_test_predictions = model.predict_generator(testGene, NTest, verbose=1)
-y_test_predictions = y_test_predictions[2]
+if mod_ver == 1: # model 1 outputs 3 classifier activations
+    y_test_predictions = y_test_predictions[0]
 y_test_predict = np.argmax(y_test_predictions, axis=-1)
 
 # show predictions for first images

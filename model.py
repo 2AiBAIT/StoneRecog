@@ -5,9 +5,9 @@ from tensorflow.python.keras.layers import Input, Dense, Conv2D, MaxPooling2D, A
 from tensorflow.python.keras.regularizers import l2
 from lrn import LRN
 
-gpus = tf.config.experimental.list_physical_devices('GPU')
-for gpu in gpus:
-    tf.config.experimental.set_memory_growth(gpu, True)
+# gpus = tf.config.list_physical_devices('GPU')
+# for gpu in gpus:
+#     tf.config.experimental.set_memory_growth(gpu, True)
 
     
 class jbdm_v0(object):
