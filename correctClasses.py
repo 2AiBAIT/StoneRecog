@@ -12,11 +12,11 @@ erradas_corrected_classe=[]
 
 for pedra in rocks:
     id=pedra["ID"]
-    corrected_pedra_certa=0
+    corrected_pedra_certa = 0
     for corrected_pedra in corrected_rocks:
-        if corrected_pedra["ID"]==pedra["ID"]:
-            corrected_pedra_certa=corrected_pedra
-            if corrected_pedra["Classe"]!=pedra["Classe"]:
+        if corrected_pedra["ID"] == pedra["ID"]:
+            corrected_pedra_certa = corrected_pedra
+            if corrected_pedra["Classe"] != pedra["Classe"]:
                 erradas.append(pedra["ID"])
                 erradas_classe.append(pedra["Classe"])
                 erradas_corrected_classe.append(corrected_pedra["Classe"])

@@ -4,6 +4,8 @@ David Morim
 
 José Henrique Brito
 
+Raquel Alves
+
 ## Description
 
 This repository contains:
@@ -18,12 +20,15 @@ Each stone has groundtruth metadata and image URL.
 
 The stone classification groundtruth was hand-corrected by an expert geologist.
 
-![StoneRecogDataset](results/StoneRecogDataset.png)
+![StoneRecogDataset](images/StoneRecogDataset.png)
 
 ## App
 
-![StoneRecogApp2](results/ResultsL2.png)
+### 3 Classes
+![StoneRecogApp2](images/ResultsL2.png)
 
-![StoneRecogApp1](results/ResultsL1.png)
+### 7 Classes
+![StoneRecogApp1](images/ResultsL1.png)
 
-![StoneRecogApp0](results/ResultsL0.png)
+### 70 Classes
+![StoneRecogApp0](images/ResultsL0.png)

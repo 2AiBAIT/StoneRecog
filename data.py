@@ -10,6 +10,7 @@ import json
 import skimage.io as io
 import skimage.transform as trans
 from sklearn.model_selection import train_test_split
+import cv2
 #from raster_classes import *
 #import pickle
 #import rasterio as rio
@@ -20,10 +21,33 @@ from sklearn.model_selection import train_test_split
 
 rocks_limit = 0
 
-# done
-def normalizeImage(imgB):
-        img=(np.array(imgB, 'float')-128)/128
-        return img
+
+def normalizeImage(imgB, normalization):
+    # img=(np.array(imgB, 'float')-128)/128
+    # img = (np.array(imgB, 'float')) / 255.0
+    if normalization == 'jbdm_v0':
+        img = (np.array(imgB, 'float')/127.5) - 1.0
+    elif normalization == 'vgg16':
+        img = tf.keras.applications.vgg16.preprocess_input(imgB)  # model 3*
+    elif normalization == 'vgg19':
+        img = tf.keras.applications.vgg19.preprocess_input(imgB)  # model 3*
+    elif normalization == 'resnet_v2':
+        img = tf.keras.applications.resnet_v2.preprocess_input(imgB)  # model 3*
+    elif normalization == 'inception_v3':
+        img = tf.keras.applications.inception_v3.preprocess_input(imgB)
+    elif normalization == 'inception_resnet_v2':
+        img = tf.keras.applications.inception_resnet_v2.preprocess_input(imgB)  # model 3*
+    elif normalization=='mobilenet_v2':
+        img = tf.keras.applications.mobilenet_v2.preprocess_input(imgB)  # model 2*
+    elif normalization=='mobilenet_v3':
+        img = tf.keras.applications.mobilenet_v3.preprocess_input(imgB)  # model 2.5*
+    elif normalization=='densenet':
+        img = tf.keras.applications.densenet.preprocess_input(imgB) # model 4*
+    elif normalization=='nasnet':
+        img = tf.keras.applications.nasnet.preprocess_input(imgB)  # model 5*
+    elif normalization=='efficientnet':
+        img = tf.keras.applications.efficientnet.preprocess_input(imgB) # model 6*
+    return img
 
 
 # done
@@ -189,7 +213,7 @@ def do_center_crop(img, input_size, inicial_size):
     return img
 
 
-def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath, trainSet, aug_dict, input_size=(128, 128, 3)):
+def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath, trainSet, aug_dict, crop_size=(128, 128, 3), net_input_size=(128, 128, 3), normalization='jbdm_v0'):
     # i = 0
     classes_list_L0 = classes_structure["classes_list_L0"]
     classes_list_L1 = classes_structure["classes_list_L1"]
@@ -213,7 +237,7 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
             iRock = 0
             nBatches = int(np.ceil(len(trainSet)/batch_size))
             for batchID in range(nBatches):
-                batch_images = np.zeros(((batch_size,) + input_size ))
+                batch_images = np.zeros(((batch_size,) + net_input_size ))
                 batch_classes = np.zeros((batch_size, class_count))
 
                 iRockInBatch=0
@@ -221,7 +245,7 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
                     if iRock < len(trainSet):
                         rock = trainSet[iRock]
                         img = io.imread(os.path.join(datasetPath, rock['Diretorio Img']))
-                        img = normalizeImage(img)
+                        img = normalizeImage(img, normalization)
                         class_Name = rock['Classe']
                         class_ID = classes_L0_dict[class_Name]
                         if classLevel>0:
@@ -235,7 +259,10 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
                                 class_Name = superClassName
                                 class_ID = superClassID
                         batch_classes[iRockInBatch][class_ID] = 1
-                        img = augmentImages(aug_dict, img, input_size)
+                        img = augmentImages(aug_dict, img, crop_size)
+                        if crop_size != net_input_size:
+                            img = cv2.resize(img, dsize=(net_input_size[0], net_input_size[1]), interpolation=cv2.INTER_CUBIC)
+
                         batch_images[iRockInBatch, :, :, :] = img
 
                         iRock += 1
@@ -244,12 +271,12 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
                         batch_images = batch_images[0:iRockInBatch, :, :, :]
                         batch_classes = batch_classes[0:iRockInBatch]
                         break
-                yield (batch_images, batch_classes)
+                yield batch_images, batch_classes
     else:
         while 1:
             for rock in trainSet:
                 img = io.imread(os.path.join(datasetPath, rock['Diretorio Img']))
-                img = normalizeImage(img)
+                img = normalizeImage(img, normalization)
                 class_Name = rock['Classe']
                 class_ID = classes_L0_dict[class_Name]
                 if classLevel > 0:
@@ -262,24 +289,28 @@ def trainGeneratorStones(classes_structure, classLevel, batch_size, datasetPath,
                         superClassID = classes_L2_dict[superClassName]
                         class_Name = superClassName
                         class_ID = superClassID
-                img = augmentImages(aug_dict, img, input_size)
-                img = np.zeros(input_size)
+                img = augmentImages(aug_dict, img, crop_size)
+                if crop_size != net_input_size:
+                    img = cv2.resize(img, dsize=(net_input_size[0], net_input_size[1]), interpolation=cv2.INTER_CUBIC)
+                img = np.zeros(net_input_size)
 
                 cls = np.zeros(class_count)
                 cls[class_ID] = 1
                 img = np.array([img])
 
-                yield (img, cls)
+                yield img, cls
 
 
-def testGeneratorStones(datasetPath, testSet, input_size, inicial_size):
+def testGeneratorStones(datasetPath, testSet, input_size, inicial_size, normalization, augmentation):
     for rock in testSet:
         img = io.imread(os.path.join(datasetPath, rock['Diretorio Img']))
-
-        img = do_center_crop(img, input_size, inicial_size)
+        img = normalizeImage(img, normalization)
+        if augmentation == "center":
+            img = do_center_crop(img, input_size, inicial_size)
+        else:
+            img = augmentImages(augmentation, img, input_size)
         img = np.array([img])
-
-        yield (img)
+        yield img
 
 
 def get_class_gt(set, classes_structure, classLevel):
