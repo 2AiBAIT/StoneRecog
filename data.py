@@ -104,32 +104,63 @@ def prepare_dataset(datasetPath, rocks_db, classes_structure, classLevel):
         datasetY[i] = class_ID
         i = i + 1
 
-    # duplicate examples that are the only samples for their class, so that we can do stratified split
+    y_hist = np.zeros(len(classes_L0_dict), dtype=np.uint16)
+    for i in range(len(datasetY)):
+        y_hist[datasetY[i]] = y_hist[datasetY[i]] + 1
+    # print(y_hist)
+
+    filhos_que_so_tem_um_irmao=[]
+    filhos_que_so_tem_um_irmao_class = []
+    for i in range(datasetY.shape[0]):
+        c = datasetY[i]
+        if y_hist[datasetY[i]] == 2:
+            filhos_que_so_tem_um_irmao.append(i)
+            filhos_que_so_tem_um_irmao_class.append(c)
+    if len(filhos_que_so_tem_um_irmao) > 0:
+        newDatasetX = np.ndarray(datasetX.shape[0] + len(filhos_que_so_tem_um_irmao))
+        newDatasetX[0:datasetX.shape[0]] = datasetX[:]
+        i = datasetX.shape[0]
+        for c in filhos_que_so_tem_um_irmao:
+            newDatasetX[i] = c
+            i = i + 1
+
+        newDatasetY = np.ndarray(datasetY.shape[0] + len(filhos_que_so_tem_um_irmao_class), dtype=int)
+        newDatasetY[0:datasetY.shape[0]] = datasetY[:]
+        i = datasetY.shape[0]
+        for c in filhos_que_so_tem_um_irmao_class:
+            newDatasetY[i] = c
+            i = i + 1
+
+        datasetX = newDatasetX
+        datasetY = newDatasetY
+
+    y_hist = np.zeros(len(classes_L0_dict), dtype=np.uint16)
+    for i in range(len(datasetY)):
+        y_hist[datasetY[i]] = y_hist[datasetY[i]] + 1
+    # print(y_hist)
+
+    # triplicate examples that are the only samples for their class, so that we can do stratified split
     filhos_unicos = []
     filhos_unicos_class = []
     for i in range(datasetY.shape[0]):
         c = datasetY[i]
-        encontrei_outro = False
-        for j in range(datasetY.shape[0]):
-            outro_c = datasetY[j]
-            if i != j and outro_c == c:
-                encontrei_outro = True
-                break
-        if not encontrei_outro:
+        if y_hist[datasetY[i]] == 1:
             filhos_unicos.append(i)
+            filhos_unicos.append(i)
+            filhos_unicos_class.append(c)
             filhos_unicos_class.append(c)
 
     if len(filhos_unicos) > 0:
-        newDatasetX = np.ndarray(len(usableSet) + len(filhos_unicos))
-        newDatasetX[0:len(usableSet)] = datasetX[:]
-        i = len(usableSet)
+        newDatasetX = np.ndarray(datasetX.shape[0] + len(filhos_unicos))
+        newDatasetX[0:datasetX.shape[0]] = datasetX[:]
+        i = datasetX.shape[0]
         for c in filhos_unicos:
             newDatasetX[i] = c
             i = i + 1
 
-        newDatasetY = np.ndarray(len(usableSet) + len(filhos_unicos_class), dtype=int)
-        newDatasetY[0:len(usableSet)] = datasetY[:]
-        i = len(usableSet)
+        newDatasetY = np.ndarray(datasetY.shape[0] + len(filhos_unicos_class), dtype=int)
+        newDatasetY[0:datasetY.shape[0]] = datasetY[:]
+        i = datasetY.shape[0]
         for c in filhos_unicos_class:
             newDatasetY[i] = c
             i = i + 1
@@ -137,9 +168,24 @@ def prepare_dataset(datasetPath, rocks_db, classes_structure, classLevel):
         datasetX = newDatasetX
         datasetY = newDatasetY
 
-    '''Faz a separação do training set(80%) do test set(20%)'''
-    X_train, X_test, y_train, y_test = train_test_split(datasetX, datasetY, test_size=0.2, random_state=1,
-                                                        stratify=datasetY, shuffle=True)
+    y_hist = np.zeros(len(classes_L0_dict), dtype=np.uint16)
+    for i in range(len(datasetY)):
+        y_hist[datasetY[i]] = y_hist[datasetY[i]] + 1
+    # print(y_hist)
+
+    '''Faz a separação do training set(75%) do test set(25%)'''
+    X_train, X_test, y_train, y_test = train_test_split(
+        datasetX,
+        datasetY,
+        test_size=0.25,
+        random_state=1,
+        stratify=datasetY,
+        shuffle=True)
+
+    y_test_hist = np.zeros(len(classes_L0_dict), dtype=np.uint16)
+    for i in range(len(y_test)):
+        y_test_hist[y_test[i]] = y_test_hist[y_test[i]] + 1
+    # print(y_test_hist)
 
     '''Adiciona a variavel X_train à lista trainSet'''
     trainSet = []
