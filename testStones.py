@@ -9,8 +9,8 @@ from stoneGraphics import plot_image, plot_value_array
 from data import prepare_dataset, get_class_gt, do_center_crop, testGeneratorStones
 
 show_graphics = True
-verbose = 0
-classLevel = 2
+verbose = 2
+classLevel = 0
 
 # jbdm_v0 mobilenet_v2 mobilenet_v3 densenet nasnet efficientnet
 # resnet_v2 inception_v3 inception_resnet_v2 vgg16 vgg19
