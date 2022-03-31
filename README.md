@@ -9,7 +9,7 @@ Raquel Alves
 ## Description
 
 This repository contains:
-- a dataset with images and metadata of natural stones
+- a script to build a dataset with images and metadata of natural stones
 - a prototype application to recognize natural stone from images
 
 ## Installation
