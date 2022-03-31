@@ -1,5 +1,6 @@
 from bs4 import BeautifulSoup
-import imagesize
+# import imagesize
+import skimage.io as io
 import requests
 import json
 
@@ -54,7 +55,10 @@ def get_rock_details():
                 with open(file_path, 'wb') as handler:
                     handler.write(img_data)
                 # Get image dimensions width and height
-                width, height = imagesize.get(file_path)
+                # width, height = imagesize.get(file_path)
+                img = io.imread(file_path)
+                width = img.shape[1]
+                height = img.shape[0]
                 #print(width, height)
 
             '''Name of the Rock'''
