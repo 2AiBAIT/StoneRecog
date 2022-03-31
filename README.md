@@ -12,6 +12,10 @@ This repository contains:
 - a dataset with images and metadata of natural stones
 - a prototype application to recognize natural stone from images
 
+## Installation
+
+conda env create --file environment.yml
+
 ## Dataset
 
 The dataset contains 6556 stones and is derived from the www.naturalstone-online.com database.
